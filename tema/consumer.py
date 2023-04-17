@@ -31,7 +31,30 @@ class Consumer(Thread):
         :type kwargs:
         :param kwargs: other arguments that are passed to the Thread's __init__()
         """
-        pass
+        self.carts = carts
+        self.marketplace = marketplace
+        self.retry_wait_time = retry_wait_time
+        super().__init__(**kwargs)
 
     def run(self):
-        pass
+                for cart in self.carts:
+            cart_id = self.marketplace.new_cart()
+            for op in cart:
+                quantity = 0
+                while quantity < op['quantity']:
+                    if op['type'] == 'add':
+                        res = self.marketplace.add_to_cart(cart_id, op['product'])
+                        if not res:
+                            time.sleep(self.retry_wait_time)
+                        else:
+                            quantity += 1
+                    elif op['type'] == 'remove':
+                        res = self.marketplace.remove_from_cart(cart_id, op['product'])
+                        if not res:
+                            time.sleep(self.retry_wait_time)
+                        else:
+                            quantity += 1
+            products_bought = self.marketplace.place_order(cart_id)
+            with self.marketplace.lock_print:
+                for product in products_bought:
+                    print(self.name, 'bought', product)
