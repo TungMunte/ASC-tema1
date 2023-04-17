@@ -5,7 +5,7 @@ Computer Systems Architecture Course
 Assignment 1
 March 2021
 """
-
+import time
 from threading import Thread
 
 
@@ -37,7 +37,7 @@ class Consumer(Thread):
         super().__init__(**kwargs)
 
     def run(self):
-                for cart in self.carts:
+        for cart in self.carts:
             cart_id = self.marketplace.new_cart()
             for op in cart:
                 quantity = 0
